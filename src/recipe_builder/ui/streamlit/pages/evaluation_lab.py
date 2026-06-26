@@ -6,12 +6,13 @@ from recipe_builder.evaluation.service import EvaluationService
 
 
 st.set_page_config(
-    page_title="Evaluation Dashboard",
+    page_title="Evaluation Lab",
     page_icon="📊",
     layout="wide",
 )
 
-st.title("📊 Prompt & Model Evaluation Dashboard")
+st.title("📊 Evaluation Lab")
+st.caption("Compare prompt versions, model settings, latency, and token usage across recipe generation runs.")
 
 repository = EvaluationRepository(EVALUATION_LOG_FILE)
 service = EvaluationService(repository)
@@ -74,12 +75,12 @@ most_used_prompt = get_mode_value(filtered_df, "prompt_version")
 col1, col2, col3 = st.columns(3)
 
 col1.metric("Total Runs", total_runs)
-col2.metric("Avg Response Time", f"{avg_response_time:.2f}s")
-col3.metric("Avg Tokens/sec", f"{avg_tokens_per_second:.2f}")
+col2.metric("Avg Latency", f"{avg_response_time:.2f}s")
+col3.metric("Avg Throughput", f"{avg_tokens_per_second:.2f} tok/s")
 
 col4, col5, col6 = st.columns(3)
 
-col4.metric("Avg Output Tokens", f"{avg_output_tokens:.0f}")
+col4.metric("Avg Output Length", f"{avg_output_tokens:.0f} tokens")
 col5.metric("Most Used Model", most_used_model)
 col6.metric("Most Used Prompt", most_used_prompt)
 

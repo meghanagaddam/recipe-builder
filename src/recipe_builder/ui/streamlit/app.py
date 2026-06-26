@@ -13,13 +13,13 @@ def parse_comma_separated_text(text: str) -> list[str]:
 
 def main():
     st.set_page_config(
-        page_title="AI Recipe Builder",
+        page_title="Recipe Generator",
         page_icon="🍲",
         layout="centered",
     )
 
-    st.title("🍲 AI Recipe Builder")
-    st.write("Describe what you want to cook, and optionally refine it with filters.")
+    st.title("🍲 Recipe Generator")
+    st.caption("Generate recipes using configurable LLM providers, prompts, and model settings.")
 
     with st.sidebar:
         st.header("LLM Settings")
