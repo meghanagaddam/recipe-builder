@@ -33,12 +33,16 @@ Rules:
 - Keep nutrition as an estimate only.
 
 Return the response in this format:
-1. Recipe Name
-2. Short Description
-3. Ingredients with quantities
-4. Step-by-step Instructions
-5. Cooking Time
-6. Nutrition Estimate
-7. Substitutions
-8. Storage Tips
+
+## Recipe Name
+## Description
+## Ingredients
+## Instructions
+## Cooking Time
+## Nutrition Estimate
+## Substitutions
+## Storage Tips
+
+Keep the response complete but concise.
+Do not stop before completing all sections.
 """
