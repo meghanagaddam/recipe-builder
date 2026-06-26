@@ -2,6 +2,8 @@ import streamlit as st
 
 from recipe_builder.models.recipe import RecipeRequest
 from recipe_builder.services.recipe_generator import generate_recipe
+from recipe_builder.config import DEFAULT_LLM_PROVIDER, DEFAULT_MODEL
+from recipe_builder.services.llm.factory import LLMFactory
 
 
 def parse_comma_separated_text(text: str) -> list[str]:
@@ -17,6 +19,43 @@ def main():
 
     st.title("🍲 AI Recipe Builder")
     st.write("Describe what you want to cook, and optionally refine it with filters.")
+
+    with st.sidebar:
+        st.header("LLM Settings")
+
+        provider = st.selectbox(
+            "Provider",
+            ["ollama"],
+            index=0,
+        )
+
+        model = st.selectbox(
+            "Model",
+            ["qwen3:8b", "llama3.1:8b", "gemma3:4b"],
+            index=0,
+        )
+
+        prompt_version = st.selectbox(
+            "Prompt Version",
+            ["recipe_v1", "recipe_v2"],
+            index=0,
+        )
+
+        temperature = st.slider(
+            "Temperature",
+            min_value=0.0,
+            max_value=1.5,
+            value=0.5,
+            step=0.1,
+        )
+
+        max_tokens = st.slider(
+            "Max output tokens",
+            min_value=300,
+            max_value=3000,
+            value=1800,
+            step=100,
+        )
 
     user_request = st.text_area(
         "What would you like to cook?",
@@ -80,7 +119,18 @@ def main():
         )
 
         with st.spinner("Generating your recipe..."):
-            result = generate_recipe(request)
+            llm = LLMFactory.create(
+            provider=provider,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        result = generate_recipe(
+            request=request,
+            llm=llm,
+            prompt_version=prompt_version,
+        )
 
         st.success(
             f"Generated using {result.metadata.model} "
@@ -92,6 +142,8 @@ def main():
             st.write(f"Response time: {result.metadata.response_time_seconds} seconds")
             st.write(f"Temperature: {result.metadata.temperature}")
             st.write(f"Max output tokens: {result.metadata.max_tokens}")
+            st.write(f"Prompt version: {prompt_version}")
+            st.write(f"Provider: {provider}")
 
         st.subheader("Generated Recipe")
         st.write(result.content)
