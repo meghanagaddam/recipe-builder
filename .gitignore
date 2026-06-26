@@ -16,3 +16,4 @@ wheels/
 .ipynb_checkpoints/
 data/raw/
 data/evaluation_runs.jsonl
+data/*.jsonl
