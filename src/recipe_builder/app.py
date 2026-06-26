@@ -4,6 +4,7 @@ from recipe_builder.models.recipe import RecipeRequest
 from recipe_builder.services.recipe_generator import generate_recipe
 from recipe_builder.config import DEFAULT_LLM_PROVIDER, DEFAULT_MODEL
 from recipe_builder.services.llm.factory import LLMFactory
+from recipe_builder.evaluation.run_logger import log_evaluation_run
 
 
 def parse_comma_separated_text(text: str) -> list[str]:
@@ -124,13 +125,19 @@ def main():
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
-        )
+            )
 
-        result = generate_recipe(
-            request=request,
-            llm=llm,
-            prompt_version=prompt_version,
-        )
+            result = generate_recipe(
+                request=request,
+                llm=llm,
+                prompt_version=prompt_version,
+            )
+
+            evaluation_run = log_evaluation_run(
+                request=request,
+                response=result,
+                prompt_version=prompt_version,
+            )
 
         st.success(
             f"Generated using {result.metadata.model} "
@@ -144,6 +151,11 @@ def main():
             st.write(f"Max output tokens: {result.metadata.max_tokens}")
             st.write(f"Prompt version: {prompt_version}")
             st.write(f"Provider: {provider}")
+            st.write(f"Run ID: {evaluation_run.run_id}")
+            st.write(f"Input tokens: {result.metadata.input_tokens}")
+            st.write(f"Output tokens: {result.metadata.output_tokens}")
+            st.write(f"Total tokens: {result.metadata.total_tokens}")
+            st.write(f"Tokens/sec: {result.metadata.tokens_per_second}")
 
         st.subheader("Generated Recipe")
         st.write(result.content)

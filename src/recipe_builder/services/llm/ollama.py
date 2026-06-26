@@ -38,12 +38,30 @@ class OllamaLLM(BaseLLM):
 
         response_time = time.perf_counter() - start_time
 
+        output_tokens = response.get("eval_count")
+        input_tokens = response.get("prompt_eval_count")
+
+        tokens_per_second = None
+        eval_duration = response.get("eval_duration")
+
+        if output_tokens and eval_duration:
+            tokens_per_second = round(output_tokens / (eval_duration / 1_000_000_000), 2)
+
         return LLMResponse(
             content=response["message"]["content"],
             metadata=LLMMetadata(
+                provider="ollama",
                 model=self.model,
                 response_time_seconds=round(response_time, 2),
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                total_tokens=(
+                    input_tokens + output_tokens
+                    if input_tokens is not None and output_tokens is not None
+                    else None
+                ),
+                tokens_per_second=tokens_per_second,
             ),
         )
