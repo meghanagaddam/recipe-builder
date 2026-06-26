@@ -1,3 +1,5 @@
+import time
+
 from ollama import chat
 
 from recipe_builder.config import (
@@ -5,6 +7,7 @@ from recipe_builder.config import (
     OLLAMA_MAX_TOKENS,
     OLLAMA_TEMPERATURE,
 )
+from recipe_builder.models.llm import LLMMetadata, LLMResponse
 from recipe_builder.services.llm.base import BaseLLM
 
 
@@ -19,14 +22,28 @@ class OllamaLLM(BaseLLM):
         self.temperature = temperature
         self.max_tokens = max_tokens
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str) -> LLMResponse:
+        start_time = time.perf_counter()
+
         response = chat(
             model=self.model,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
             options={
                 "temperature": self.temperature,
                 "num_predict": self.max_tokens,
             },
         )
 
-        return response["message"]["content"]
+        response_time = time.perf_counter() - start_time
+
+        return LLMResponse(
+            content=response["message"]["content"],
+            metadata=LLMMetadata(
+                model=self.model,
+                response_time_seconds=round(response_time, 2),
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+            ),
+        )

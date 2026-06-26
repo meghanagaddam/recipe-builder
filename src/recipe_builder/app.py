@@ -80,10 +80,21 @@ def main():
         )
 
         with st.spinner("Generating your recipe..."):
-            recipe = generate_recipe(request)
+            result = generate_recipe(request)
+
+        st.success(
+            f"Generated using {result.metadata.model} "
+            f"in {result.metadata.response_time_seconds} seconds"
+        )
+
+        with st.expander("LLM Metrics"):
+            st.write(f"Model: {result.metadata.model}")
+            st.write(f"Response time: {result.metadata.response_time_seconds} seconds")
+            st.write(f"Temperature: {result.metadata.temperature}")
+            st.write(f"Max output tokens: {result.metadata.max_tokens}")
 
         st.subheader("Generated Recipe")
-        st.write(recipe)
+        st.write(result.content)
 
 
 if __name__ == "__main__":
